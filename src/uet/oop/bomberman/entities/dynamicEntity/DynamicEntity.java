@@ -1,11 +1,15 @@
 package uet.oop.bomberman.entities.dynamicEntity;
 
 import javafx.scene.image.Image;
+import uet.oop.bomberman.BombermanGame;
+import uet.oop.bomberman.entities.staticEntity.Brick;
 import uet.oop.bomberman.entities.staticEntity.Entity;
+import uet.oop.bomberman.entities.staticEntity.Wall;
+import uet.oop.bomberman.graphics.Sprite;
 
 public abstract class DynamicEntity extends Entity {
 
-    private boolean status;
+    private boolean isDead;
     private int speed;
 
     public DynamicEntity(int xUnit, int yUnit, Image img) {
@@ -13,11 +17,11 @@ public abstract class DynamicEntity extends Entity {
     }
 
     public boolean isStatus() {
-        return status;
+        return isDead;
     }
 
     public void setStatus(boolean status) {
-        this.status = status;
+        this.isDead = status;
     }
 
     public int getSpeed() {
@@ -28,6 +32,7 @@ public abstract class DynamicEntity extends Entity {
         this.speed = speed;
     }
 
-    public abstract boolean canMove();
+    @Override
+    public abstract boolean checkCollection(double x, double y);
 
 }

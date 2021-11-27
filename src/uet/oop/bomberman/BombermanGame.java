@@ -22,14 +22,16 @@ import java.util.Scanner;
 
 public class BombermanGame extends Application {
 
+    public static char[][] loadMap = new char[50][50];
+
     public static final int WIDTH = 31;
     public static final int HEIGHT = 13;
 
     private GraphicsContext gc;
     private Canvas canvas;
     private List<DynamicEntity> entities = new ArrayList<>();
-    private List<Entity> stillObjects = new ArrayList<>();
-
+    public static List<Entity> stillObjects = new ArrayList<>();
+    private List<Entity> grasses = new ArrayList<>();
 
     public static void main(String[] args) {
         Application.launch(BombermanGame.class);
@@ -72,7 +74,6 @@ public class BombermanGame extends Application {
         String url = "res/levels/Level1.txt";
 
         FileInputStream fileInputStream;
-        char[][] loadMap = new char[50][50];
 
         fileInputStream = new FileInputStream(url);
         Scanner scanner = new Scanner(fileInputStream);
@@ -85,7 +86,7 @@ public class BombermanGame extends Application {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < heigth; j++) {
                 Entity object = new Grass(i, j, Sprite.grass.getFxImage());
-                stillObjects.add(object);
+                grasses.add(object);
             }
         }
 
@@ -144,6 +145,7 @@ public class BombermanGame extends Application {
 
     public void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        grasses.forEach(g -> g.render(gc));
         stillObjects.forEach(g -> g.render(gc));
         entities.forEach(g -> g.render(gc));
     }

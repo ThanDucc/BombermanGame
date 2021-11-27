@@ -11,6 +11,8 @@ public abstract class Entity {
     //Tọa độ Y tính từ góc trái trên trong Canvas
     protected int y;
 
+    protected Image img;
+
     public int getX() {
         return x;
     }
@@ -35,7 +37,13 @@ public abstract class Entity {
         this.img = img;
     }
 
-    protected Image img;
+    public int getW() {
+        return (int) Math.round(this.img.getWidth());
+    }
+
+    public int getH() {
+        return (int) Math.round(this.img.getHeight());
+    }
 
     //Khởi tạo đối tượng, chuyển từ tọa độ đơn vị sang tọa độ trong canvas
     public Entity(int xUnit, int yUnit, Image img) {
@@ -50,12 +58,19 @@ public abstract class Entity {
 
     public abstract void update();
 
+
     /**
-     * kiem tra va cham.
-     *
-     * @param entity e
-     * @return boolean.
+     * kiem tra va cham
+     * @param x toa do x
+     * @param y toa do y
+     * @return boolean
      */
-    public abstract boolean collisionCheck(Entity entity);
+    public abstract boolean checkCollection(double x, double y);
+
+    public boolean collide(Entity e) {
+        int sumX = this.getX()+this.getW();
+        int sumY = this.getY()+this.getH();
+        return sumX >= e.getX() + 10 && sumY >= e.getY() && this.getX() <= e.getX() + e.getW() && this.getY() <= e.getY() + e.getH();
+    }
 
 }

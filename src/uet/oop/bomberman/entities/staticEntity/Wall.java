@@ -15,7 +15,7 @@ public class Wall extends Entity {
     }
 
     @Override
-    public boolean collisionCheck(Entity entity) {
+    public boolean checkCollection(double x, double y) {
         return false;
     }
 
