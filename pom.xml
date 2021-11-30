@@ -17,6 +17,16 @@
             <artifactId>javafx-fxml</artifactId>
             <version>16</version>
         </dependency>
+        <dependency>
+            <groupId>org.iq80.snappy</groupId>
+            <artifactId>snappy</artifactId>
+            <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>16</version>
+        </dependency>
 
 
     </dependencies>
