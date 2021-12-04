@@ -68,10 +68,10 @@ public abstract class Entity {
     public boolean collide(Entity e, int sX, int sY) {
         int sumX = this.getX()+this.getW();
         int sumY = this.getY()+this.getH();
-        return sumX >= e.getX() + (10 + sX)
-                && sumY >= e.getY() + 5 + (sY)
-                && this.getX() <= e.getX() + e.getW() - (5 + sY)
-                && this.getY() <= e.getY() + e.getH() - (10 + sX);
+        return sumX >= e.getX() + sX
+                && sumY >= e.getY() + sY
+                && this.getX() <= e.getX() + e.getW() - sY
+                && this.getY() <= e.getY() + e.getH() - sX;
     }
 
     public boolean isRemoveAvailbe() {

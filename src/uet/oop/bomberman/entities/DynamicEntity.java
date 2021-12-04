@@ -49,4 +49,5 @@ public abstract class DynamicEntity extends Entity {
 
     public final Sound soundKillEnemy = new Sound(new File("res/sound/KILL_ENEMY.wav"));
 
+
 }

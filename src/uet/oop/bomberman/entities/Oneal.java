@@ -14,7 +14,7 @@ public class Oneal extends DynamicEntity {
     private int animate;
     private List<Entity> bombs;
 
-    public Oneal(int xUnit, int yUnit, Image img, List<Entity> stillObjects,List<Entity> bombs ) {
+    public Oneal(int xUnit, int yUnit, Image img, List<Entity> stillObjects, List<Entity> bombs ) {
         super(xUnit, yUnit, img, stillObjects);
         this.bombs = bombs;
     }
@@ -157,6 +157,10 @@ public class Oneal extends DynamicEntity {
         return true;
     }
 
-
+    @Override
+    public void dead() {
+        startdead = System.currentTimeMillis();
+        isAlive = false;
+    }
 
 }

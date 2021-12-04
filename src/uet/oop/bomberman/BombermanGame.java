@@ -3,13 +3,11 @@ package uet.oop.bomberman;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import uet.oop.bomberman.entities.Entity;
-import uet.oop.bomberman.sound.Sound;
 
 import java.util.List;
 
 
 public class BombermanGame extends Application {
-
     private GameProcessing gameProcessing;
 
     public static void main(String[] args) {

@@ -1,4 +1,5 @@
 package uet.oop.bomberman.entities;
+
 import javafx.scene.image.Image;
 import uet.oop.bomberman.graphics.Sprite;
 
@@ -11,15 +12,18 @@ public class Brick extends Entity {
     public Brick(int x, int y, Image img) {
         super(x, y, img);
     }
-    public int animate;
+
+    public int animate = 0;
 
     @Override
     public void update() {
         if (Destroyed) {
-            animate ++;
-            img = Sprite.movingSprite(Sprite.brick_exploded, Sprite.brick_exploded1, Sprite.brick_exploded2, animate, 50).getFxImage();
+            animate++;
             long countdown = (new Date().getTime()) - startTimeBroken;
-            if (countdown >= 130) {
+
+            img = Sprite.movingSprite(Sprite.brick_exploded,
+                    Sprite.brick_exploded1, Sprite.brick_exploded2, animate, 40).getFxImage();
+            if (countdown >= 1000) {
                 this.removeAvailbe = true;
             }
         }

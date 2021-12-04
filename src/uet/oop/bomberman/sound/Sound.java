@@ -35,6 +35,14 @@ public class Sound {
         }
     }
 
+    public void playBackground() {
+        if (clip != null) {
+            stop();
+            clip.setFramePosition(0);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+    }
+
     public void stop() {
         if (clip != null && clip.isRunning()) {
             clip.stop();

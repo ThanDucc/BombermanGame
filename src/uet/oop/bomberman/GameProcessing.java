@@ -2,30 +2,36 @@ package uet.oop.bomberman;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import uet.oop.bomberman.UserControl.Controller;
+import uet.oop.bomberman.Control.Controller;
+import uet.oop.bomberman.HighScore.ReadFile;
+import uet.oop.bomberman.HighScore.WriteFile;
 import uet.oop.bomberman.entities.*;
 import uet.oop.bomberman.graphics.Sprite;
 import uet.oop.bomberman.sound.Sound;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
 public class GameProcessing extends Application {
     public static final int WIDTH = 31;
-    public static final int HEIGHT = 13;
+    public static final int HEIGHT = 15;
 
     private GraphicsContext gc;
     private Canvas canvas;
@@ -46,7 +52,10 @@ public class GameProcessing extends Application {
     private long itemBUsedTime;
     private long itemFUsedTime;
     private long itemSUsedTime;
-    private boolean finished = false;
+
+    private boolean lose = false;
+    private boolean win = false;
+
     public static char[][] loadMap = new char[50][50];
 
     private final Sound soundBackground = new Sound(new File("res/sound/BACKGROUND.wav"));
@@ -58,10 +67,19 @@ public class GameProcessing extends Application {
     private final Sound soundLevelUp = new Sound(new File("res/sound/LEVEL_UP.wav"));
     private final Sound soundGetItem = new Sound(new File("res/sound/GET_ITEM.wav"));
 
+    private int Score = 0;
+    private int level = 1;
+    private int left = 3;
+
+    private ArrayList<String[]> listHighScore = new ArrayList<>();
+
+    public int getScore() {
+        return Score;
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
-        soundBackground.play();
+        soundBackground.playBackground();
 
         // Tao Canvas
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
@@ -82,9 +100,13 @@ public class GameProcessing extends Application {
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                if (finished) {
-                    soundBackground.stop();
+                if (lose) {
+                    left--;
+
                     soundBomberDie.play();
+                    soundBackground.stop();
+                    soundHenGio.stop();
+                    soundBomNo.stop();
 
                     try {
                         TimeUnit.SECONDS.sleep(1);
@@ -94,12 +116,159 @@ public class GameProcessing extends Application {
                     soundLoseGame.play();
 
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle(null);
-                    alert.setHeaderText(null);
-                    alert.setContentText("Ban la nhat! Click OK to exit.");
-                    alert.setOnCloseRequest(evt -> Platform.exit());
+                    if (left == 0) {
+                        alert.setTitle("LOSE");
+                        alert.setHeaderText(null);
+                        alert.setContentText("\t---- NON ----\n\n\tĐIỂM CỦA BẠN:   " + Score);
+
+                        listHighScore = ReadFile.readAndSort();
+                        boolean checkScore = false;
+
+                        if (listHighScore.size() < 5) {
+                            WriteFile.write(String.valueOf(Score));
+                            WriteFile.write("\t\t");
+                            checkScore = true;
+                        } else {
+                            String score = listHighScore.get(4)[0];
+                            if (Integer.parseInt(score) < Score) {
+                                WriteFile.write(String.valueOf(Score));
+                                WriteFile.write("\t\t");
+                                checkScore = true;
+                            }
+                        }
+                        if (checkScore) {
+                            alert.setOnCloseRequest(evt -> {
+                                root.getChildren().clear();
+                                Parent parent = null;
+                                try {
+                                    parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/HighScore.fxml")));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                Group root = new Group();
+                                root.getChildren().add(parent);
+                                stage.setScene(new Scene(root));
+                                stage.show();
+
+                            });
+                        } else {
+                            alert.setOnCloseRequest(evt -> stage.close());
+                        }
+
+                    } else {
+                        alert.setTitle("Information");
+                        alert.setHeaderText(null);
+                        alert.setContentText("\t----   BẠN ĐÃ THUA, BẠN CÒN " + left + " MẠNG" + "   ----\n\n\tĐIỂM HIỆN TẠI CỦA BẠN:   " + Score);
+
+                        alert.setOnCloseRequest(evt -> {
+                            lose = false;
+                            Controller keyboard = new Controller(scene);
+                            bomberman = new Bomber(1, 3, Sprite.player_right.getFxImage(), keyboard, stillObjects);
+                            stillObjects.clear();
+                            monsters.clear();
+                            flames.clear();
+                            barrier.clear();
+                            bombs.clear();
+
+                            try {
+                                createMap(level);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            this.start();
+                            soundBackground.playBackground();
+                        });
+
+                    }
                     this.stop();
                     alert.show();
+
+                }
+                if (win) {
+                    level++;
+                    if (left < 5) {
+                        left++;
+                    }
+
+                    soundLevelUp.play();
+                    soundBackground.stop();
+                    soundHenGio.stop();
+                    soundBomNo.stop();
+                    if (level == 3) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("WIN");
+                        alert.setHeaderText(null);
+                        alert.setContentText("\t----   CHÚC MỪNG BẠN ĐÃ PHÁ ĐẢO TRÒ CHƠI   ----\n\n\tĐIỂM CỦA BẠN:   " + Score);
+
+                        listHighScore = ReadFile.readAndSort();
+                        boolean checkScore = false;
+
+                        if (listHighScore.size() < 5) {
+                            WriteFile.write(String.valueOf(Score));
+                            WriteFile.write("\t\t");
+                            checkScore = true;
+                        } else {
+                            String score = listHighScore.get(4)[0];
+                            if (Integer.parseInt(score) < Score) {
+                                WriteFile.write(String.valueOf(Score));
+                                WriteFile.write("\t\t");
+                                checkScore = true;
+                            }
+                        }
+                        if (checkScore) {
+                            alert.setOnCloseRequest(evt -> {
+                                root.getChildren().clear();
+                                Parent parent = null;
+                                try {
+                                    parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/HighScore.fxml")));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                Group root = new Group();
+                                root.getChildren().add(parent);
+                                stage.setScene(new Scene(root));
+                                stage.show();
+
+                            });
+                        } else {
+                            alert.setOnCloseRequest(evt -> stage.close());
+                        }
+
+                        this.stop();
+                        alert.show();
+                    }
+                    else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("WIN");
+                        alert.setHeaderText(null);
+                        alert.setContentText("\t----   GAME LÀ DỄ,  NEXT LEVEL   ----\n\n\tĐIỂM HIỆN TẠI CỦA BẠN:   " + Score);
+                        alert.setOnCloseRequest(evt -> {
+                            win = false;
+                            bomberman.dead();
+
+                            stillObjects.clear();
+                            monsters.clear();
+                            flames.clear();
+                            barrier.clear();
+                            bombs.clear();
+
+                            Controller keyboard = new Controller(scene);
+                            bomberman = new Bomber(1, 3, Sprite.player_right.getFxImage(), keyboard, stillObjects);
+                            try {
+                                createMap(level);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            this.start();
+                            soundBackground.playBackground();
+                        });
+
+                        this.stop();
+                        alert.show();
+                    }
+
                 }
 
                 render();
@@ -107,15 +276,16 @@ public class GameProcessing extends Application {
             }
         };
         timer.start();
-        createMap();
+        bomberman = new Bomber(1, 3, Sprite.player_right.getFxImage(), keyboard, stillObjects);
 
-        bomberman = new Bomber(1, 1, Sprite.player_right.getFxImage(), keyboard, stillObjects);
+        createMap(level);
+
 
     }
 
-    public void createMap() throws FileNotFoundException {
+    public void createMap(int level) throws FileNotFoundException {
 
-        String url = "res/levels/Level1.txt";
+        String url = "res/levels/Level" + level + ".txt";
 
         FileInputStream fileInputStream;
 
@@ -129,7 +299,14 @@ public class GameProcessing extends Application {
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < heigth; j++) {
-                Entity object = new Grass(i, j, Sprite.grass.getFxImage());
+                Entity object = new Grass(i + 1, j + 2, Sprite.grass.getFxImage());
+                grasses.add(object);
+            }
+        }
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < 2; j++) {
+                Entity object = new Grass(i, j, Sprite.score.getFxImage());
                 grasses.add(object);
             }
         }
@@ -146,52 +323,75 @@ public class GameProcessing extends Application {
                 Entity entity;
                 switch (loadMap[i][j]) {
                     case '#' -> {
-                        entity = new Wall(j, i, Sprite.wall.getFxImage());
+                        entity = new Wall(j, i + 2, Sprite.wall.getFxImage());
                         stillObjects.add(entity);
                     }
                     case '*' -> {
-                        entity = new Brick(j, i, Sprite.brick.getFxImage());
+                        entity = new Brick(j, i + 2, Sprite.brick.getFxImage());
                         stillObjects.add(entity);
                     }
                     case 'x' -> {
-                        entity = new Portal(j, i, Sprite.portal.getFxImage());
+                        entity = new Portal(j, i + 2, Sprite.portal.getFxImage());
                         stillObjects.add(entity);
-                        entity = new Brick(j, i, Sprite.brick.getFxImage());
+                        entity = new Brick(j, i + 2, Sprite.brick.getFxImage());
                         stillObjects.add(entity);
                     }
                     case '1' -> {
-                        entity = new Balloom(j, i, Sprite.balloom_right1.getFxImage(), stillObjects, bombs);
+                        entity = new Balloom(j, i + 2, Sprite.balloom_right1.getFxImage(), stillObjects, bombs);
                         monsters.add((DynamicEntity) entity);
                     }
                     case '2' -> {
-                        entity = new Oneal(j, i, Sprite.oneal_right1.getFxImage(), stillObjects, bombs);
+                        entity = new Oneal(j, i + 2, Sprite.oneal_right1.getFxImage(), stillObjects, bombs);
                         monsters.add((DynamicEntity) entity);
                     }
                     case 'b' -> {
-                        stillObjects.add(new Item(j, i, Sprite.powerup_bombs.getFxImage(), Item.bombItem));
-                        stillObjects.add(new Brick(j, i, Sprite.brick.getFxImage()));
+                        stillObjects.add(new Item(j, i + 2, Sprite.powerup_bombs.getFxImage(), Item.bombItem));
+                        stillObjects.add(new Brick(j, i + 2, Sprite.brick.getFxImage()));
                     }
 
                     case 'f' -> {
-                        stillObjects.add(new Item(j, i, Sprite.powerup_flames.getFxImage(), Item.flameItem));
-                        stillObjects.add(new Brick(j, i, Sprite.brick.getFxImage()));
+                        stillObjects.add(new Item(j, i + 2, Sprite.powerup_flames.getFxImage(), Item.flameItem));
+                        stillObjects.add(new Brick(j, i + 2, Sprite.brick.getFxImage()));
                     }
                     case 's' -> {
-                        stillObjects.add(new Item(j, i, Sprite.powerup_speed.getFxImage(), Item.speedItem));
-                        stillObjects.add(new Brick(j, i, Sprite.brick.getFxImage()));
+                        stillObjects.add(new Item(j, i + 2, Sprite.powerup_speed.getFxImage(), Item.speedItem));
+                        stillObjects.add(new Brick(j, i + 2, Sprite.brick.getFxImage()));
+                    }
+                    case 'k' -> {
+                        monsters.add(new Kondoria(j, i + 2, Sprite.kondoria_right1.getFxImage(), stillObjects, bombs, bomberman, true));
+                    }
+                    case 'm' -> {
+                        monsters.add(new Minvo(j, i + 2, Sprite.minvo_right1.getFxImage(), stillObjects, bombs, true));
                     }
                 }
             }
         }
+
+
     }
 
     public void levelFinish() {
-        finished = true;
+        win = true;
+    }
+
+    public void endGame() {
+        lose = true;
     }
 
     public void update() {
+
+        gc.setFont(Font.font("Comic Sans MS", FontWeight.SEMI_BOLD, 30));
+        gc.setFill(Color.WHITE);
+
+        gc.fillText("LEVEL", 100, 45);
+        gc.fillText(String.valueOf(level), 210, 45);
+        gc.fillText("SCORE", 400, 45);
+        gc.fillText(String.valueOf(Score), 525, 45);
+        gc.fillText("LEFT", 750, 45);
+        gc.fillText(String.valueOf(left), 850, 45);
+
         if (bomberman.isRemoveAvailbe()) {
-            levelFinish();
+            endGame();
         }
         if (bombActived <= bomberman.getBombSize()) {
             if (bomberman.isBombPlanted()) {
@@ -241,9 +441,27 @@ public class GameProcessing extends Application {
         for (int i = 0; i < monsters.size(); i++) {
             monsters.get(i).setStillObjs(stillObjects);
             if (monsters.get(i).isRemoveAvailbe()) {
+                if (monsters.get(i) instanceof Kondoria) {
+                    if (((Kondoria) monsters.get(i)).isMultiplyAvailble()) {
+                        int dX = (monsters.get(i).getX() + 16) / Sprite.SCALED_SIZE;
+                        int dY = (monsters.get(i).getY() + 16) / Sprite.SCALED_SIZE;
+                        Kondoria kondoria1 = new Kondoria(dX, dY, Sprite.kondoria_left3.getFxImage(), stillObjects, bombs, bomberman, false);
+                        Kondoria kondoria2 = new Kondoria(dX, dY, Sprite.kondoria_right1.getFxImage(), stillObjects, bombs, bomberman, false);
+                        monsters.add(kondoria1);
+                        monsters.add(kondoria2);
+                    }
+                }
+                if (monsters.get(i) instanceof Minvo) {
+                    if (((Minvo) monsters.get(i)).isMultiplyAvailble()) {
+                        int dX = (monsters.get(i).getX() + 16) / Sprite.SCALED_SIZE;
+                        int dY = (monsters.get(i).getY() + 16) / Sprite.SCALED_SIZE;
+                        monsters.add(new Minvo(dX, dY, Sprite.minvo_right1.getFxImage(), stillObjects, bombs, false));
+                    }
+
+                }
                 monsters.remove(monsters.get(i));
             } else if (monsters.get(i).collide(bomberman)) {
-                bomberman.dead();
+                //bomberman.dead();
             }
         }
         for (int i = 0; i < flames.size(); i++) {
@@ -251,12 +469,30 @@ public class GameProcessing extends Application {
                 if (((Flame) flames.get(i)).isDisapper()) {
                     flames.remove(flames.get(i));
                     continue;
-                } else if (flames.get(i).collide(bomberman, 5 ,2)) {
+                } else if (flames.get(i).collide(bomberman, 5, 2)) {
                     bomberman.dead();
                 }
                 for (DynamicEntity e : monsters) {
-                    if ( flames.get(i).collide(e, 5 ,2)) {
-                        e.dead();
+                    if (e instanceof Balloom) {
+                        if (flames.get(i).collide(e, 5, 2)) {
+                            e.dead();
+                            Score += 30;
+                        }
+                    } else if (e instanceof Oneal) {
+                        if (flames.get(i).collide(e, 5, 2)) {
+                            e.dead();
+                            Score += 50;
+                        }
+                    } else if (e instanceof Kondoria) {
+                        if (flames.get(i).collide(e, 5, 2)) {
+                            e.dead();
+                            Score += 90;
+                        }
+                    } else if (e instanceof Minvo) {
+                        if (flames.get(i).collide(e, 5, 2)) {
+                            e.dead();
+                            Score += 70;
+                        }
                     }
                 }
             }
@@ -268,9 +504,22 @@ public class GameProcessing extends Application {
                     stillObjects.remove(stillObjects.get(i));
                 }
             } else if (stillObjects.get(i) instanceof Portal) {
+                boolean check = false;
                 if (stillObjects.get(i).collide(bomberman) && monsters.size() == 0) {
-                    levelFinish();
-                    soundLevelUp.play();
+                    for (Entity stillObject : stillObjects) {
+                        if (stillObject instanceof Brick) {
+                            if (stillObjects.get(i).getX() == stillObject.getX()
+                                    && stillObjects.get(i).getY() == stillObject.getY()) {
+                                check = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!check) {
+                        bomberman.setX(stillObjects.get(i).getX());
+                        bomberman.setY(stillObjects.get(i).getY());
+                        levelFinish();
+                    }
                 }
             } else if (stillObjects.get(i) instanceof Item) {
                 if (stillObjects.get(i).collide(bomberman)) {
@@ -280,18 +529,21 @@ public class GameProcessing extends Application {
                             itemFUsedTime = System.currentTimeMillis();
                             ((Item) stillObjects.get(i)).setUsed(true);
                             soundGetItem.play();
+                            Score += 400;
                         }
                         case Item.speedItem -> {
                             bomberman.setSpeed(3);
                             itemSUsedTime = System.currentTimeMillis();
                             ((Item) stillObjects.get(i)).setUsed(true);
                             soundGetItem.play();
+                            Score += 400;
                         }
                         case Item.bombItem -> {
                             bomberman.setBombSize(3);
                             itemBUsedTime = System.currentTimeMillis();
                             ((Item) stillObjects.get(i)).setUsed(true);
                             soundGetItem.play();
+                            Score += 400;
                         }
                     }
                 }
@@ -321,7 +573,8 @@ public class GameProcessing extends Application {
     public void createFlames(int i) {
         //Khoi tao 1 flame.
         Image topImg = Sprite.explosion_vertical.getFxImage();
-        Image botImg = Sprite.explosion_vertical.getFxImage();;
+        Image botImg = Sprite.explosion_vertical.getFxImage();
+
         Image leftImg = Sprite.explosion_horizontal.getFxImage();
         Image rightImg = Sprite.explosion_horizontal.getFxImage();
 
@@ -356,7 +609,7 @@ public class GameProcessing extends Application {
             Flame leftFlame = new Flame(locX - y, locY, leftImg, posLeft);
             Flame rightFlame = new Flame(locX + y, locY, rightImg, posRight);
 
-            for (Entity e: stillObjects) {
+            for (Entity e : stillObjects) {
                 if (e instanceof Wall) {
                     if (topFlame.collide(e)) {
                         blockTop = true;
@@ -435,4 +688,6 @@ public class GameProcessing extends Application {
             }
         }
     }
+
+
 }

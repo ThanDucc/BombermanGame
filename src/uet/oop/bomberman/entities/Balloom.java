@@ -81,6 +81,7 @@ public class Balloom extends DynamicEntity {
         }
     }
 
+
     @Override
     public boolean checkCollection(double x, double y) {
         for (Entity entity : stillObjects) {
@@ -99,4 +100,11 @@ public class Balloom extends DynamicEntity {
         }
         return true;
     }
+
+    @Override
+    public void dead() {
+        startdead = System.currentTimeMillis();
+        isAlive = false;
+    }
+
 }
