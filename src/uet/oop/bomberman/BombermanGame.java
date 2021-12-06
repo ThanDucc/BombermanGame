@@ -1,10 +1,12 @@
 package uet.oop.bomberman;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
-import uet.oop.bomberman.entities.Entity;
 
-import java.util.List;
+import java.util.Objects;
 
 
 public class BombermanGame extends Application {
@@ -16,8 +18,13 @@ public class BombermanGame extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        gameProcessing = new GameProcessing();
-        gameProcessing.start(primaryStage);
+//        gameProcessing = new GameProcessing();
+//        gameProcessing.start(primaryStage);
+
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/interface/MainScreen.fxml")));
+        primaryStage.setTitle("BOMBERMAN GAME");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
     }
 
 

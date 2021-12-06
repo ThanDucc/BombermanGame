@@ -1,5 +1,8 @@
-8630		thanduc
-10360		Ẩn danh
-9740		ducthan0		0		0		0		0		0		Ẩn danh
-0		Ẩn danh
-98010		thanduc
+0		No name
+0		No name
+0		No name
+0		No name
+0		No name
+400		thanduc
+2110		ducthan
+20900		java

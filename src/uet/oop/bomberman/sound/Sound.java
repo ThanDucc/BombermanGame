@@ -8,6 +8,8 @@ import javax.sound.sampled.Clip;
 
 public class Sound {
 
+    long currentFrame = 0;
+
     private Clip clip;
 
     public Sound(File path) {
@@ -25,6 +27,21 @@ public class Sound {
             e.printStackTrace();
         }
 
+    }
+
+    public void pause() {
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            this.currentFrame = this.clip.getMicrosecondPosition();
+        }
+    }
+
+    public void resume() {
+        if (clip != null) {
+            stop();
+            clip.setMicrosecondPosition(currentFrame);
+            clip.start();
+        }
     }
 
     public void play() {

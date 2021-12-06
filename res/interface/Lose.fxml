@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="331.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uet.oop.bomberman.ControllerClasses.LoseController">
+   <children>
+      <ImageView fitHeight="507.0" fitWidth="691.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../Image/Lose.png" />
+         </image>
+      </ImageView>
+      <Text fill="WHITE" fontSmoothingType="LCD" layoutX="190.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ĐIỂM CỦA BẠN :">
+         <font>
+            <Font name="Arial" size="20.0" />
+         </font>
+      </Text>
+      <Label fx:id="score" layoutX="403.0" layoutY="118.0" prefHeight="17.0" prefWidth="191.0" text="0" textFill="WHITE">
+         <font>
+            <Font name="Arial" size="19.0" />
+         </font>
+      </Label>
+      <Text fill="WHITE" layoutX="133.0" layoutY="74.0" strokeType="OUTSIDE" strokeWidth="0.0" text="---- GAME OVER ----" wrappingWidth="521.21630859375">
+         <font>
+            <Font name="Arial" size="45.0" />
+         </font>
+      </Text>
+      <Button fx:id="close" layoutX="642.0" layoutY="1.0" mnemonicParsing="false" onAction="#Close" text="Close" />
+   </children>
+</AnchorPane>

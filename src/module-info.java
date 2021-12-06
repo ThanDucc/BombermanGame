@@ -5,12 +5,13 @@ module bomb {
     requires java.datatransfer;
     requires java.desktop;
 
-    opens uet.oop.bomberman to javafx.fxml;
+    opens uet.oop.bomberman to javafx.fxml, javafx.graphics;
     exports uet.oop.bomberman;
     exports uet.oop.bomberman.Control;
-    opens uet.oop.bomberman.Control to javafx.fxml;
-    exports uet.oop.bomberman.HighScore;
-    opens uet.oop.bomberman.HighScore to javafx.fxml;
+    opens uet.oop.bomberman.Control to javafx.fxml, javafx.graphics;
+    exports uet.oop.bomberman.File;
+    opens uet.oop.bomberman.File to javafx.fxml, javafx.graphics;
 
-
+    exports uet.oop.bomberman.ControllerClasses;
+    opens uet.oop.bomberman.ControllerClasses to javafx.fxml, javafx.graphics;
 }

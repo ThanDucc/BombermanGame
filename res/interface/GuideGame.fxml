@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="414.0" prefWidth="744.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uet.oop.bomberman.ControllerClasses.GuideGame">
+   <children>
+      <ImageView fitHeight="511.0" fitWidth="744.0" layoutY="-4.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../Image/Guide.png" />
+         </image>
+      </ImageView>
+      <Text layoutX="28.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="HƯỚNG DẪN" wrappingWidth="352.21630859375">
+         <font>
+            <Font name="Times New Roman Bold" size="26.0" />
+         </font></Text>
+      <Text fontSmoothingType="LCD" layoutX="30.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Luật chơi:" wrappingWidth="441.66650390625">
+         <font>
+            <Font name="Tahoma Bold" size="16.0" />
+         </font></Text>
+      <Text layoutX="30.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Bạn là 1 bomber, nhiệm vụ của bạn là di chuyển, đặt bom để tiêu diệt hết các quái vật đồng thời tìm ra cách cửa được giấu dưới những viên gạch để qua màn. " wrappingWidth="380.4384765625" />
+      <Text fontSmoothingType="LCD" layoutX="469.0" layoutY="62.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cách chơi:">
+         <font>
+            <Font name="Tahoma Bold" size="16.0" />
+         </font></Text>
+      <Text layoutX="469.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Nhấn phím A để di chuyển sang trái ←">
+         <font>
+            <Font size="14.0" />
+         </font></Text>
+      <Text layoutX="469.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Nhấn phím D để di chuyển sang phải →">
+         <font>
+            <Font size="14.0" />
+         </font></Text>
+      <Text layoutX="469.0" layoutY="145.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Nhấn phím W để di chuyển lên trên ↑">
+         <font>
+            <Font size="14.0" />
+         </font></Text>
+      <Text layoutX="469.0" layoutY="171.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Nhấn phím S để di chuyển xuống dưới ↓">
+         <font>
+            <Font size="14.0" />
+         </font></Text>
+      <Text layoutX="469.0" layoutY="197.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Nhấn phím ENTER để đặt bom ">
+         <font>
+            <Font size="14.0" />
+         </font></Text>
+      <Text fontSmoothingType="LCD" layoutX="30.0" layoutY="145.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Một số lưu ý:">
+         <font>
+            <Font name="Tahoma Bold" size="16.0" />
+         </font></Text>
+      <Text layoutX="30.0" layoutY="170.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Quái vật có thể có nhiều loại: khác nhau về tốc độ, số mạng, sự  &quot;thông minh&quot;, v.v..." wrappingWidth="380.4384765625" />
+      <Text layoutX="30.0" layoutY="213.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Ăn các vật phẩm hỗ trợ giúp bomber trở nên mạnh hơn, tuy nhiên vật phẩm có thời gian nhất định, hết thời gian sẽ trở lại trạng thái cũ." wrappingWidth="380.4384765625" />
+      <Text layoutX="30.0" layoutY="259.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Số điểm tương ứng với sự va chạm giữa quái vật và bom, quái vật bị nổ trong khoảng cách gần điểm sẽ càng cao và ngược lại." wrappingWidth="380.4384765625" />
+      <Text layoutX="30.0" layoutY="305.0" strokeType="OUTSIDE" strokeWidth="0.0" text="+ Trong 1 thời điểm, chỉ có duy nhất 1 bom được đặt (trừ khi ăn được BombItem)" wrappingWidth="380.4384765625" />
+      <Text layoutX="30.0" layoutY="353.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Giờ thì start Game ngay thôi!">
+         <font>
+            <Font name="Arial Bold" size="18.0" />
+         </font></Text>
+      <Button fx:id="Start" layoutX="82.0" layoutY="373.0" mnemonicParsing="false" onAction="#StartGame" prefHeight="34.0" prefWidth="144.0" styleClass="buttonbg" stylesheets="@Button.css" text="Start Game" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Button>
+      <Button fx:id="back" layoutX="319.0" layoutY="373.0" mnemonicParsing="false" onAction="#BackToMain" prefHeight="34.0" prefWidth="144.0" styleClass="buttonbg" stylesheets="@Button.css" text="⏪ Back">
+         <font>
+            <Font size="14.0" />
+         </font></Button>
+   </children>
+</AnchorPane>
