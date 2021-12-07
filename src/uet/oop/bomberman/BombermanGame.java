@@ -18,8 +18,6 @@ public class BombermanGame extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        gameProcessing = new GameProcessing();
-//        gameProcessing.start(primaryStage);
 
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/interface/MainScreen.fxml")));
         primaryStage.setTitle("BOMBERMAN GAME");
