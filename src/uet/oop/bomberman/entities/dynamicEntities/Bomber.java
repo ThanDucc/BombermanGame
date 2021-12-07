@@ -3,7 +3,6 @@ package uet.oop.bomberman.entities.dynamicEntities;
 import javafx.scene.image.Image;
 import uet.oop.bomberman.Control.Controller;
 import uet.oop.bomberman.entities.Entity;
-import uet.oop.bomberman.entities.dynamicEntities.Bomb;
 import uet.oop.bomberman.entities.staticEntities.Brick;
 import uet.oop.bomberman.entities.staticEntities.Wall;
 import uet.oop.bomberman.graphics.Sprite;
@@ -77,7 +76,6 @@ public class Bomber extends Entity {
             }
         }
         for (Entity e : stillObjs) {
-
             if (e instanceof Wall || e instanceof Brick) {
                 if (this.collide(e)) {
                     if (dir == Controller.MOVE_W || dir == Controller.MOVE_S) {
@@ -114,7 +112,6 @@ public class Bomber extends Entity {
     }
 
     public void go() {
-
         if (dir == Controller.MOVE_W || dir == Controller.MOVE_S) {
             if (dir == Controller.MOVE_W) {
                 if (pad != 0) {
