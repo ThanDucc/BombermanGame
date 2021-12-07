@@ -15,9 +15,20 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import uet.oop.bomberman.Control.Controller;
-import uet.oop.bomberman.HighScore.ReadFile;
-import uet.oop.bomberman.HighScore.WriteFile;
 import uet.oop.bomberman.entities.*;
+import uet.oop.bomberman.entities.dynamicEntities.Bomb;
+import uet.oop.bomberman.entities.dynamicEntities.Bomber;
+import uet.oop.bomberman.entities.dynamicEntities.DynamicEntity;
+import uet.oop.bomberman.entities.dynamicEntities.Flame;
+import uet.oop.bomberman.entities.item.Item;
+import uet.oop.bomberman.entities.staticEntities.Brick;
+import uet.oop.bomberman.entities.staticEntities.Grass;
+import uet.oop.bomberman.entities.staticEntities.Portal;
+import uet.oop.bomberman.entities.staticEntities.Wall;
+import uet.oop.bomberman.entities.monster.Balloom;
+import uet.oop.bomberman.entities.monster.Kondoria;
+import uet.oop.bomberman.entities.monster.Minvo;
+import uet.oop.bomberman.entities.monster.Oneal;
 import uet.oop.bomberman.graphics.Sprite;
 import uet.oop.bomberman.sound.Sound;
 
@@ -26,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -60,18 +72,18 @@ public class GameProcessing extends Application {
 
     private final Sound soundBackground = new Sound(new File("res/sound/BACKGROUND.wav"));
     private final Sound soundBomberDie = new Sound(new File("res/sound/BOMBER_DIE.wav"));
-    private final Sound soundLoseGame = new Sound(new File("res/sound/LOSE.wav"));
+    private final Sound soundEndGame = new Sound(new File("res/sound/GAME_OVER.wav"));
     private final Sound soundBomSet = new Sound(new File("res/sound/BOM_SET.wav"));
     private final Sound soundHenGio = new Sound(new File("res/sound/HEN_GIO.wav"));
     private final Sound soundBomNo = new Sound(new File("res/sound/BOM_NO.wav"));
     private final Sound soundLevelUp = new Sound(new File("res/sound/LEVEL_UP.wav"));
     private final Sound soundGetItem = new Sound(new File("res/sound/GET_ITEM.wav"));
+    private final Sound soundLoseGame = new Sound(new File("res/sound/LOSE.wav"));
+    private final Sound soundWinGame = new Sound(new File("res/sound/WIN.wav"));
 
-    private int Score = 0;
-    private int level = 1;
+    public static int Score = 0;
+    public int level = 1;
     private int left = 3;
-
-    private ArrayList<String[]> listHighScore = new ArrayList<>();
 
     public int getScore() {
         return Score;
@@ -79,11 +91,14 @@ public class GameProcessing extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        soundBackground.playBackground();
+
+        Score = 0;
 
         // Tao Canvas
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
+
+        soundBackground.playBackground();
 
         // Tao root container
         Group root = new Group();
@@ -113,50 +128,29 @@ public class GameProcessing extends Application {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    soundLoseGame.play();
+                    if (left != 0) {
+                        soundLoseGame.play();
+                    }
 
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     if (left == 0) {
-                        alert.setTitle("LOSE");
-                        alert.setHeaderText(null);
-                        alert.setContentText("\t---- NON ----\n\n\tĐIỂM CỦA BẠN:   " + Score);
+                        soundEndGame.play();
 
-                        listHighScore = ReadFile.readAndSort();
-                        boolean checkScore = false;
-
-                        if (listHighScore.size() < 5) {
-                            WriteFile.write(String.valueOf(Score));
-                            WriteFile.write("\t\t");
-                            checkScore = true;
-                        } else {
-                            String score = listHighScore.get(4)[0];
-                            if (Integer.parseInt(score) < Score) {
-                                WriteFile.write(String.valueOf(Score));
-                                WriteFile.write("\t\t");
-                                checkScore = true;
-                            }
+                        this.stop();
+                        root.getChildren().clear();
+                        Parent parent = null;
+                        try {
+                            parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/interface/Lose.fxml")));
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        if (checkScore) {
-                            alert.setOnCloseRequest(evt -> {
-                                root.getChildren().clear();
-                                Parent parent = null;
-                                try {
-                                    parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/HighScore.fxml")));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
 
-                                Group root = new Group();
-                                root.getChildren().add(parent);
-                                stage.setScene(new Scene(root));
-                                stage.show();
-
-                            });
-                        } else {
-                            alert.setOnCloseRequest(evt -> stage.close());
-                        }
+                        Group root = new Group();
+                        root.getChildren().add(parent);
+                        stage.setScene(new Scene(root));
+                        stage.show();
 
                     } else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Information");
                         alert.setHeaderText(null);
                         alert.setContentText("\t----   BẠN ĐÃ THUA, BẠN CÒN " + left + " MẠNG" + "   ----\n\n\tĐIỂM HIỆN TẠI CỦA BẠN:   " + Score);
@@ -180,9 +174,9 @@ public class GameProcessing extends Application {
                             soundBackground.playBackground();
                         });
 
+                        this.stop();
+                        alert.show();
                     }
-                    this.stop();
-                    alert.show();
 
                 }
                 if (win) {
@@ -191,55 +185,29 @@ public class GameProcessing extends Application {
                         left++;
                     }
 
-                    soundLevelUp.play();
+                    if (level < 3) {
+                        soundLevelUp.play();
+                    }
                     soundBackground.stop();
                     soundHenGio.stop();
                     soundBomNo.stop();
-                    if (level == 3) {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("WIN");
-                        alert.setHeaderText(null);
-                        alert.setContentText("\t----   CHÚC MỪNG BẠN ĐÃ PHÁ ĐẢO TRÒ CHƠI   ----\n\n\tĐIỂM CỦA BẠN:   " + Score);
 
-                        listHighScore = ReadFile.readAndSort();
-                        boolean checkScore = false;
-
-                        if (listHighScore.size() < 5) {
-                            WriteFile.write(String.valueOf(Score));
-                            WriteFile.write("\t\t");
-                            checkScore = true;
-                        } else {
-                            String score = listHighScore.get(4)[0];
-                            if (Integer.parseInt(score) < Score) {
-                                WriteFile.write(String.valueOf(Score));
-                                WriteFile.write("\t\t");
-                                checkScore = true;
-                            }
-                        }
-                        if (checkScore) {
-                            alert.setOnCloseRequest(evt -> {
-                                root.getChildren().clear();
-                                Parent parent = null;
-                                try {
-                                    parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/HighScore.fxml")));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                                Group root = new Group();
-                                root.getChildren().add(parent);
-                                stage.setScene(new Scene(root));
-                                stage.show();
-
-                            });
-                        } else {
-                            alert.setOnCloseRequest(evt -> stage.close());
-                        }
-
+                    if (level >= 3) {
+                        soundWinGame.play();
                         this.stop();
-                        alert.show();
-                    }
-                    else {
+                        root.getChildren().clear();
+                        Parent parent = null;
+                        try {
+                            parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/interface/Win.fxml")));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Group root = new Group();
+                        root.getChildren().add(parent);
+                        stage.setScene(new Scene(root));
+                        stage.show();
+                    } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("WIN");
                         alert.setHeaderText(null);
@@ -272,10 +240,14 @@ public class GameProcessing extends Application {
                 }
 
                 render();
+
                 update();
             }
         };
         timer.start();
+        for (int i = 0; i < stillObjects.size(); i++) {
+            System.out.println(1);
+        }
         bomberman = new Bomber(1, 3, Sprite.player_right.getFxImage(), keyboard, stillObjects);
 
         createMap(level);
@@ -461,7 +433,7 @@ public class GameProcessing extends Application {
                 }
                 monsters.remove(monsters.get(i));
             } else if (monsters.get(i).collide(bomberman)) {
-                //bomberman.dead();
+                bomberman.dead();
             }
         }
         for (int i = 0; i < flames.size(); i++) {
